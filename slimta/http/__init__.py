@@ -79,7 +79,8 @@ class HTTPSConnection(HTTPConnection):
         if self.sock:
             try:
                 self.sock.unwrap()
-            except socket_error as (errno, message):
+            except socket_error as exc:
+                errno, _ = exc.args
                 if errno != 0:
                     raise
         HTTPConnection.close(self)

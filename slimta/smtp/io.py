@@ -22,7 +22,7 @@
 from __future__ import absolute_import
 
 import re
-import cStringIO
+from io import BytesIO
 from socket import error as socket_error
 from errno import ECONNRESET, EPIPE
 
@@ -50,7 +50,7 @@ class IO(object):
         if tls_wrapper:
             self._tls_wrapper = tls_wrapper
 
-        self.send_buffer = cStringIO.StringIO()
+        self.send_buffer = BytesIO()
         self.recv_buffer = ''
 
     def close(self):
@@ -58,7 +58,8 @@ class IO(object):
         if isinstance(self.socket, SSLSocket):
             try:
                 self.socket.unwrap()
-            except socket_error as (errno, message):
+            except socket_error as exc:
+                errno, _ = exc.args
                 if errno not in (0, EPIPE, ECONNRESET):
                     raise
         self.socket.close()
@@ -66,7 +67,8 @@ class IO(object):
     def raw_send(self, data):
         try:
             self.socket.sendall(data)
-        except socket_error as (errno, message):
+        except socket_error as exc:
+            errno, _ = exc.args
             if errno == ECONNRESET:
                 raise ConnectionLost()
             raise
@@ -75,7 +77,8 @@ class IO(object):
     def raw_recv(self):
         try:
             data = self.socket.recv(4096)
-        except socket_error as (errno, message):
+        except socket_error as exc:
+            errno, _ = exc.args
             if errno == ECONNRESET:
                 raise ConnectionLost()
             raise
@@ -109,7 +112,7 @@ class IO(object):
         if send == '':
             return
         self.raw_send(send)
-        self.send_buffer = cStringIO.StringIO()
+        self.send_buffer = BytesIO()
 
     def recv_reply(self):
         pattern = None
@@ -184,7 +187,7 @@ class IO(object):
         for match in line_pattern.finditer(message):
             lines.append(match.group(1))
 
-        to_send = cStringIO.StringIO()
+        to_send = BytesIO()
         for line in lines[:-1]:
             to_send.write(''.join((code, '-', line, '\r\n')))
         to_send.write(''.join((code, ' ', lines[-1], '\r\n')))

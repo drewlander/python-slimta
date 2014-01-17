@@ -29,8 +29,8 @@ for exchanging mail.
 from __future__ import absolute_import
 
 import re
-import urlparse
 from base64 import b64encode
+import urlparse
 
 import gevent
 from gevent import socket

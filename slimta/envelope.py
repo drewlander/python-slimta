@@ -28,7 +28,7 @@ from __future__ import absolute_import
 
 import re
 import copy
-import cStringIO
+from io import BytesIO
 from email.message import Message
 from email.generator import Generator
 from email.parser import Parser, FeedParser
@@ -100,7 +100,7 @@ class Envelope(object):
         :returns: Tuple of two strings: ``(header_data, message_data)``
 
         """
-        outfp = cStringIO.StringIO()
+        outfp = BytesIO()
         Generator(outfp).flatten(self.headers, False)
         header_data = re.sub(_LINE_BREAK, '\r\n', outfp.getvalue())
         return header_data, self.message
@@ -158,7 +158,7 @@ class Envelope(object):
 
         """
         if isinstance(data, Message):
-            outfp = cStringIO.StringIO()
+            outfp = BytesIO()
             Generator(outfp).flatten(data, False)
             data = outfp.getvalue()
         match = re.search(_HEADER_BOUNDARY, data)

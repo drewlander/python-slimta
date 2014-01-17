@@ -24,7 +24,7 @@ from __future__ import absolute_import
 import re
 import uuid
 import time
-import cStringIO
+from io import BytesIO
 
 from .envelope import Envelope
 
@@ -140,7 +140,7 @@ class Bounce(Envelope):
 
     def _build_message(self, envelope, reply, headers_only):
         sub_table = self._get_substitution_table(envelope, reply)
-        new_payload = cStringIO.StringIO()
+        new_payload = BytesIO()
         new_payload.write(self.header_template.format(**sub_table))
         header_data, message_data = envelope.flatten()
         new_payload.write(header_data)

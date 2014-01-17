@@ -54,7 +54,7 @@ class BlockingDeque(deque):
         pre_n = len(self)
         ret = super(BlockingDeque, self).extend(*args, **kwargs)
         post_n = len(self)
-        for i in xrange(pre_n, post_n):
+        for i in range(pre_n, post_n):
             self.sema.release()
         return ret
 
@@ -62,7 +62,7 @@ class BlockingDeque(deque):
         pre_n = len(self)
         ret = super(BlockingDeque, self).extendleft(*args, **kwargs)
         post_n = len(self)
-        for i in xrange(pre_n, post_n):
+        for i in range(pre_n, post_n):
             self.sema.release()
         return ret
 

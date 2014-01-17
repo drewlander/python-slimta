@@ -23,6 +23,7 @@ from __future__ import absolute_import
 
 import time
 from socket import error as socket_error
+from collections import Callable
 
 import gevent
 from gevent import Timeout, Greenlet
@@ -75,7 +76,7 @@ class SmtpRelayClient(RelayPoolClient):
         try:
             with Timeout(self.connect_timeout):
                 self.socket = self._socket_creator(self.address)
-        except socket_error as (err, msg):
+        except socket_error:
             reply = Reply('451', '4.3.0 Connection failed')
             raise SmtpRelayError.factory(reply)
         self.client = Client(self.socket, self.tls_wrapper)
@@ -100,7 +101,7 @@ class SmtpRelayClient(RelayPoolClient):
 
     def _authenticate(self):
         with Timeout(self.command_timeout):
-            if callable(self.credentials):
+            if isinstance(self.credentials, Callable):
                 auth = self.client.auth(*self.credentials())
             else:
                 auth = self.client.auth(*self.credentials)
